@@ -1,0 +1,40 @@
+[build-system]
+requires = ["scikit-build-core[pyproject]>=0.9.2"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "gguf-diffusion"
+dynamic = ["version"]
+description = "Image generation GUI for GGUF diffusion models with a bundled diffusion.cpp engine"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "gguf", email = "info@gguf.us" }]
+requires-python = ">=3.8"
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.scripts]
+gguf-diffusion = "gguf_diffusion.__main__:main"
+
+[project.urls]
+Repository = "https://github.com/gguf-org/diffusion"
+
+[tool.scikit-build]
+build-dir = "build/{wheel_tag}"
+wheel.packages = ["src/gguf_diffusion"]
+wheel.py-api = "py3"
+cmake.version = ">=3.15"
+minimum-version = "0.9"
+sdist.include = ["vendor/diffusion/*"]
+
+[tool.scikit-build.metadata.version]
+provider = "scikit_build_core.metadata.regex"
+input = "src/gguf_diffusion/__init__.py"
