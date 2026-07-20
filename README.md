@@ -1,9 +1,9 @@
 # gguf-diffusion
 
-Image generation GUI for GGUF diffusion models, packaged for Python. The GUI
-runs in your browser against a local server; generation is done by the
-diffusion.cpp engine, compiled during `pip install` and bundled with the
-package as a single binary. Model and image files are referenced by
+Image/video generation GUI for GGUF diffusion models, packaged for Python.
+The GUI runs in your browser against a local server; generation is done by
+the diffusion (c/c++) engine, compiled during `pip install` and bundled with
+the package as a single binary. Model and image files are referenced by
 filesystem path through a built-in file browser — nothing is uploaded or
 copied to temp storage.
 
@@ -64,3 +64,18 @@ gguf-diffusion engine -- --help
   bars, streams the log to the GUI, and lists the produced images.
 - File selection uses a server-side directory listing (`/api/browse`) so the
   GUI gets real filesystem paths — no drag & drop uploads of multi-GB models.
+
+## Developer note
+
+```bash
+git clone --recursive https://github.com/gguf-org/gguf-diffusion
+```
+
+If a clone exited, update it to the latest version by:
+
+```bash
+cd gguf-diffusion
+git pull origin master
+git submodule init
+git submodule update
+```

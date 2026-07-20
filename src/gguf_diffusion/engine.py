@@ -263,8 +263,15 @@ class GenerationJob:
             if m:
                 self.step, self.steps = int(m.group(1)), int(m.group(2))
                 # \r-refreshed bars would flood the log: overwrite the
-                # previous line when it was also a progress bar
-                if self.log and PROGRESS_RE.search(self.log[-1]):
+                # previous line, but only when it's a redraw of the *same*
+                # step (updated s/it estimate) -- once the step number
+                # advances, keep it as a new entry so the log_after polling
+                # cursor (which has already moved past the old entry) can
+                # still deliver it to the client instead of the line getting
+                # stuck showing the first step forever.
+                prev = self.log[-1] if self.log else None
+                prev_m = PROGRESS_RE.search(prev) if prev else None
+                if prev_m and prev_m.group(1) == m.group(1):
                     self.log[-1] = line
                     return
             self.log.append(line)

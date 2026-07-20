@@ -316,7 +316,7 @@ function renderFlagList(containerId, emptyId, items, flags, kind, title) {
 
     const rm = document.createElement('button');
     rm.className = 'remove-btn';
-    rm.textContent = '🗑';
+    rm.textContent = '✖';
     rm.title = 'Remove';
     rm.onclick = () => { items.splice(i, 1); update(); };
 
@@ -347,7 +347,7 @@ function renderRefList() {
     };
     const rm = document.createElement('button');
     rm.className = 'remove-btn';
-    rm.textContent = '🗑';
+    rm.textContent = '✖';
     rm.onclick = () => { config.ref_image_paths.splice(i, 1); update(); };
     row.append(pathBox, browse, rm);
     box.appendChild(row);
@@ -479,6 +479,7 @@ function setGenStatus(s) {
   $('status-dot').className = 'dot' + (s === 'idle' ? '' : ' ' + s);
   $('stop-btn').style.display = s === 'running' ? '' : 'none';
   $('gen-progress').style.display = s === 'running' ? 'flex' : 'none';
+  $('logs-refresh-icon').classList.toggle('spin', s === 'running');
   update(false);
 }
 
@@ -511,6 +512,7 @@ async function generate() {
     setGenStatus('running');
     $('progress-bar').className = 'progress-bar indeterminate';
     $('progress-text').textContent = 'Loading model…';
+    switchTab('logs');
     pollJob();
   } catch (err) {
     setGenStatus('error');
@@ -518,24 +520,32 @@ async function generate() {
   }
 }
 
+// Fetches new log lines (and progress) for the current job and appends them
+// to the log view. Shared by the auto-poll loop and the manual Refresh button.
+async function fetchJobLog() {
+  const job = await api(`/api/job/${currentJobId}?after=${logNext}`);
+  if (job.log.length) {
+    logText += (logText ? '\n' : '') + job.log.join('\n');
+    logNext = job.log_next;
+    const view = $('log-view');
+    view.textContent = logText;
+    view.scrollTop = view.scrollHeight;
+  }
+  if (job.steps > 0) {
+    $('progress-bar').className = 'progress-bar';
+    $('progress-bar').style.width = job.progress + '%';
+    $('progress-text').textContent = `step ${job.step}/${job.steps} · ${job.elapsed}s`;
+  }
+  return job;
+}
+
 async function pollJob() {
   if (!currentJobId) return;
   try {
-    const job = await api(`/api/job/${currentJobId}?after=${logNext}`);
-    if (job.log.length) {
-      logText += (logText ? '\n' : '') + job.log.join('\n');
-      logNext = job.log_next;
-      const view = $('log-view');
-      view.textContent = logText;
-      view.scrollTop = view.scrollHeight;
-    }
-    if (job.steps > 0) {
-      $('progress-bar').className = 'progress-bar';
-      $('progress-bar').style.width = job.progress + '%';
-      $('progress-text').textContent = `step ${job.step}/${job.steps} · ${job.elapsed}s`;
-    }
+    const job = await fetchJobLog();
     if (job.status === 'running') {
-      pollTimer = setTimeout(pollJob, 700);
+      // same cadence as the desktop app's diffusion Logs panel
+      pollTimer = setTimeout(pollJob, 800);
       return;
     }
     if (job.status === 'completed') {
@@ -730,6 +740,10 @@ $('hw-refresh').onclick = refreshHardware;
 
 // ─── Logs ────────────────────────────────────────────────────────────────────
 
+$('logs-refresh').onclick = async () => {
+  if (!currentJobId) return;
+  try { await fetchJobLog(); } catch (err) { showError(err.message); }
+};
 $('logs-clear').onclick = () => { logText = ''; $('log-view').textContent = ''; };
 
 // ─── Theme ───────────────────────────────────────────────────────────────────

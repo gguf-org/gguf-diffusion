@@ -16,7 +16,7 @@
   --ok:         #2f9e63;
   --input-bg:   #ffffff;
   --input-bd:   #cccccc;
-  --header-bg:  #4f6ef7;
+  --header-bg:  #059669;
   --header-txt: #ffffff;
   --tag-bg:     #e8ecff;
   --tag-txt:    #3a58e0;
@@ -38,8 +38,8 @@
   --ok:         #4dc98a;
   --input-bg:   #2c2c32;
   --input-bd:   #444450;
-  --header-bg:  #1f2340;
-  --header-txt: #c8d0ff;
+  --header-bg:  #0d2b21;
+  --header-txt: #a7f3d0;
   --tag-bg:     #1e2448;
   --tag-txt:    #8098ff;
   --row-hover:  #252840;
@@ -223,6 +223,9 @@ input[type="range"] { width: 100%; margin-top: 6px; accent-color: var(--accent);
 .btn-danger:hover { background: var(--danger-h); border-color: var(--danger-h); color: #fff; }
 .btn-small { font-size: 11px; padding: 4px 10px; }
 .btn-big { font-size: 14px; padding: 10px 26px; }
+.btn-icon { vertical-align: -1.5px; margin-right: 4px; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Command preview ──────────────────────────────────────────────────── */
 .cmd {
